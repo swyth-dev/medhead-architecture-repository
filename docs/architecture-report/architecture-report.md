@@ -1,11 +1,42 @@
 ---
-id: intro
+id: architecture-report
 title: Rapport des résultats de la PoC
 ---
 
 # Rapport des résultats de la PoC
 
 ## Sommaire
+
+- [Rapport des résultats de la PoC](#rapport-des-résultats-de-la-poc)
+  - [Sommaire](#sommaire)
+  - [Objet de document](#objet-de-document)
+  - [Historique de révision](#historique-de-révision)
+  - [Introduction](#introduction)
+    - [Contexte](#contexte)
+    - [Objectif de la PoC](#objectif-de-la-poc)
+  - [Description du projet](#description-du-projet)
+    - [Architecture logicielle](#architecture-logicielle)
+    - [Stack technologique](#stack-technologique)
+    - [Composants de la PoC](#composants-de-la-poc)
+    - [Gestion des migrations de données](#gestion-des-migrations-de-données)
+    - [Gestion des branches](#gestion-des-branches)
+    - [Sécurité](#sécurité)
+  - [Intégration Continue](#intégration-continue)
+    - [Tests unitaires](#tests-unitaires)
+    - [Tests d'intégration](#tests-dintégration)
+    - [Tests de charge](#tests-de-charge)
+    - [Workflow Github Actions](#workflow-github-actions)
+    - [Analyse statique avec SonarQube (SAST)](#analyse-statique-avec-sonarqube-sast)
+  - [Démonstrations](#démonstrations)
+    - [Parcours utilisateur](#parcours-utilisateur)
+    - [Tests unitaires](#tests-unitaires-1)
+    - [Tests de charge](#tests-de-charge-1)
+    - [Commentaires de Pull Requests (Unit tests, SonarCloud)](#commentaires-de-pull-requests-unit-tests-sonarcloud)
+  - [Résultats et enseignements de la PoC](#résultats-et-enseignements-de-la-poc)
+    - [Conclusions](#conclusions)
+    - [Enseignements](#enseignements)
+    - [Recommandations pour la mise en production](#recommandations-pour-la-mise-en-production)
+
 
 ## Objet de document
 
