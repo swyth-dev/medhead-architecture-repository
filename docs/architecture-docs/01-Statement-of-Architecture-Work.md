@@ -1,4 +1,5 @@
 ---
+id: 01-Statement-of-Architecture-Work
 title: Déclaration de Travail d'Architecture
 ---
 

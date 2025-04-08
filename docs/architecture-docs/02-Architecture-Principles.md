@@ -1,4 +1,5 @@
 ---
+id: 02-Architecture-Principles
 title: Principes d'Architecture
 ---
 
