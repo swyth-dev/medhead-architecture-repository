@@ -140,11 +140,14 @@ Les tests unitaires s'assurent que **les méthodes principales de notre code soi
 L'objectif de ces test est de vérifier que nos **_Features_** répondent aux besoins exprimés, ainsi que de tester les **_edge cases_** comme des ressources introuvables.
 
 - Gestion des hopitaux et des disponibilités
-  ![Tests liés à HospitalService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/hospital-tests-screen.png)
-  ![Tests liés à MedicalSpecializationService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/medical-spe-test-screen.png)
+
+![Tests liés à HospitalService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/hospital-tests-screen.png)
+
+![Tests liés à MedicalSpecializationService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/medical-spe-test-screen.png)
 
 - Gestion des réservation
-  ![enter image description here](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/bed-reservation-test-screen.png)
+
+![enter image description here](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/bed-reservation-test-screen.png)
 
 ### Tests d'intégration (Interconnexion, client d'API)
 
