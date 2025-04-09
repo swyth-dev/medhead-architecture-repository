@@ -1,5 +1,6 @@
 ---
 id: architecture-report
+
 title: Rapport des résultats de la PoC
 ---
 
@@ -23,20 +24,14 @@ title: Rapport des résultats de la PoC
     - [Sécurité](#sécurité)
   - [Intégration Continue](#intégration-continue)
     - [Tests unitaires](#tests-unitaires)
-    - [Tests d'intégration](#tests-dintégration)
-    - [Tests de charge](#tests-de-charge)
-    - [Workflow Github Actions](#workflow-github-actions)
+    - [Tests d'intégration (Interconnexion, client d'API)](#tests-dintégration-interconnexion-client-dapi)
+    - [Tests de charge avec JMeter](#tests-de-charge-avec-jmeter)
+    - [Pipeline d'intégration continue Github Actions](#pipeline-dintégration-continue-github-actions)
     - [Analyse statique avec SonarQube (SAST)](#analyse-statique-avec-sonarqube-sast)
-  - [Démonstrations](#démonstrations)
-    - [Parcours utilisateur](#parcours-utilisateur)
-    - [Tests unitaires](#tests-unitaires-1)
-    - [Tests de charge](#tests-de-charge-1)
-    - [Commentaires de Pull Requests (Unit tests, SonarCloud)](#commentaires-de-pull-requests-unit-tests-sonarcloud)
   - [Résultats et enseignements de la PoC](#résultats-et-enseignements-de-la-poc)
     - [Conclusions](#conclusions)
     - [Enseignements](#enseignements)
     - [Recommandations pour la mise en production](#recommandations-pour-la-mise-en-production)
-
 
 ## Objet de document
 
@@ -59,6 +54,7 @@ Un consortium composé de quatre entreprises leaders s’est formé pour mutuali
 La mise en œuvre d'une preuve de concept pour le système d'intervention d'urgence en temps réel par l'équipe d'architecture métier du consortium MedHead permettra :
 
 - D’améliorer la qualité des traitements d'urgence et de sauver plus de vies.
+
 - De gagner la confiance des utilisateurs quant à la simplicité d'un tel système.
 
 ## Description du projet
@@ -69,15 +65,27 @@ La mise en œuvre d'une preuve de concept pour le système d'intervention d'urge
 
 ### Stack technologique
 
+- **Langages** : Java, Typescript, HTML, CSS
+- **Frameworks** : Spring Boot, Spring Cloud, Angular 19
+- **Tests** : Junit, JMeter
+- **Build** : Maven, Vite
+- **Intégration continue** : Git, Github Actions,
+- **Base de données** : PostgreSQL
+- **Event Driven** : Kafka
+
 ### Composants de la PoC
 
 - **Netflix Eureka Discovery Server** : Composant clé dans l'architecture micro-service, il permet de :
 
   - Permet aux services de se trouver et de communiquer entre eux sans avoir à coder en dur le nom d'hôte et le port.
+
   - Assurer le load balancing entre plusieurs instances d'un même service dans le cadre d'une mise à l'échelle.
 
 - **Spring Cloud Gateway** : Centralise les requêtes HTTP entrantes et sortantes de sorte à offrir 1 seul point d'entrée pour les clients d'API de la PoC (App frontend, client d'API, tierce partie) - Dispose d'une **configuration de route** pour fournir aux clients d'API une interface homogène, sans besoin de spécifier le nom du micro service responsable des endpoints à consommer.
-  Example : `https://mydomain.com/v1/hospitals` est routé en interne vers `https://mydomain.com/hospital-service/v1/hospitals` - Les services sont contactés grâce à leur nom et non leur URL. C'est grâce au Discovery Server que les URL des micro services sont connus. De cette manière, les microservcies peuvent être mis à l'échelle sans se soucier de router dynamiquement les requêtes pour répartir la charge.
+
+Example : `https://mydomain.com/v1/hospitals` est routé en interne vers `https://mydomain.com/hospital-service/v1/hospitals` 
+
+Les services sont contactés grâce à leur nom et non leur URL. C'est grâce au Discovery Server que les URL des micro services sont connus. De cette manière, ils peuvent être mis à l'échelle en routant dynamiquement les requêtes pour répartir la charge.
 
 - **Hospital Service** : Regroupe le domaine et les sous-domaine liés aux hopitaux : détails sur spécialisations médicales, hopitaux, disponibilité d'un lit, prise en compte
 
@@ -93,51 +101,108 @@ La mise en œuvre d'une preuve de concept pour le système d'intervention d'urge
 
 ### Gestion des migrations de données
 
+La gestion des migration de la couche de persistance est déléguée à un outil dédié, Liquibase. Avec cet outil de **Database Change Management**, nous facilitons ainsi l'intégration continue et la refactorisation de la base de données et ses tables.
+
+Notre composant de persistance n'est plus qu'un couche abstraite qui **lie nos données persistées avec les entités de notre domaine métier.**
+
 ### Gestion des branches
 
 Dans le cadre de notre démarche d’intégration continue et de livraison continue, nous avons retenu la stratégie de gestion de branche basée sur le **trunk-based development**. Cette approche s’aligne étroitement avec les exigences de livraisons fréquentes, fiables et de haute qualité. Nos principales motivations sont les suivantes :
 
 - **Facilitation de l’intégration continue** : en centralisant les développements sur une branche unique (`main`), les contributions sont intégrées de manière régulière, réduisant ainsi significativement les risques de conflits complexes lors des fusions.
+
 - **Accélération du cycle de livraison** : Un seul code constamment à jour, stable et déployable permet des déploiements plus fréquents, tout en minimisant les retards et les incertitudes en fin de cycle.
+
 - **Renforcement de la qualité par les tests automatisés** : Chaque modification (pull request, merge sur la branche principale) est soumise à une batterie de tests, évaluant rapidement les non-régressions et la stabilité de l'état du système.
+
 - **Amélioration de la collaboration au sein de l’équipe** : le travail sur une base commune favorise une meilleure coordination, une plus grande transparence et une compréhension partagée de l’état du projet.
+
 - **Simplification de la gestion des branches** : En évitant la multiplication des branches longues, les incréments sont rapidement ajoutés à la branche principale, favorisant un historique et un suivi plus claire, et une seule voie pour la mise en production.
 
 ### Sécurité
 
-- La gestion des utilisateurs n'a pas été implémenté car elle n'a pas été jugée nécessaire afin de démontrer la faisabilité d'un système de réservation d'urgence. Néanmoins, dans un contexte de production, les patients seront amenés à s’authentifier avant d'être en mesure de réserver un lit d’hôpital.
+- **La gestion des utilisateurs** n'a pas été implémenté car elle n'a pas été jugée nécessaire afin de démontrer la faisabilité d'un système de réservation d'urgence. Néanmoins, dans un contexte de production, les patients seront amenés à s’authentifier avant d'être en mesure de réserver un lit d’hôpital.
 
-- Les données médicales, soumises à d'importantes exigences de conformité (HIPAA), ne sont pas stockées dans les systèmes mis en oeuvre par la PoC. Ces données peuvent être fournis par d'autres systèmes nationaux sans que pour autant elles ne soient stockées dans les systèmes impliqués dans le périmètre de la preuve de concept.
+- **Les données médicales,** soumises à d'importantes exigences de conformité (HIPAA), ne sont pas stockées dans les systèmes mis en oeuvre par la PoC. Ces données peuvent être fournis par d'autres systèmes nationaux sans que pour autant elles ne soient stockées dans les systèmes impliqués dans le périmètre de la preuve de concept.
 
-- Les données personnelles liées à la personne qui réserve un lit sont stockées dans les systèmes liés au périmètre de la PoC. Dans des conditions réelles de production, les données des patients ou utilisateurs du service de Santé nationale sont fournies par d'autres systèmes (Identity Provider par exemple).
-  - Les données personnelles telles que le nom, prénom, adresse mail, numéro de téléphone sont traités et conservés dans les systèmes liés à la PoC, mais seulement dans des environnement éphémère comme l'environnement local. Les risques d'impact sur la confidentialité ou l'intégrité des données est alors faible.
+- **Les données personnelles liées à la réservation d'un lit** sont stockées dans les systèmes liés au périmètre de la PoC. Dans des conditions réelles de production, les données des patients ou utilisateurs du service de Santé nationale sont fournies par d'autres systèmes (Identity Provider par exemple).
+
+- **Les données personnelles** telles que le nom, prénom, adresse mail, numéro de téléphone sont traités et conservés dans les systèmes liés à la PoC, mais seulement dans des environnement éphémère comme l'environnement local. Les risques d'impact sur la confidentialité ou l'intégrité des données sont alors faibles durant le traitement et le stockage, conformément **RGPD**.
 
 ## Intégration Continue
 
+Dans une démarche Agile, DevOps, de qualité, nous intégrons en continu nos changements grâce à une stratégie de test **Shift Left**. La prise en compte des tests en faite le plus en amont des développement ou durant, de sorte à toujours garder un état déployable en production de notre système.
+
 ### Tests unitaires
 
-### Tests d'intégration
+Les tests unitaires s'assurent que **les méthodes principales de notre code soient validées**. Si ces tests échouent, les mises à jours de notre code principal sont bloquées jusqu'à ce que les test passent.
 
-### Tests de charge
+L'objectif de ces test est de vérifier que nos **_Features_** répondent aux besoins exprimés, ainsi que de tester les **_edge cases_** comme des ressources introuvables.
 
-### Workflow Github Actions
+- Gestion des hopitaux et des disponibilités
+  ![Tests liés à HospitalService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/hospital-tests-screen.png)
+  ![Tests liés à MedicalSpecializationService](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/medical-spe-test-screen.png)
+
+- Gestion des réservation
+  ![enter image description here](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/bed-reservation-test-screen.png)
+
+### Tests d'intégration (Interconnexion, client d'API)
+
+Les tests d'intégration couvrent le bon fonctionnement de chaque service applicatif ainsi que les points de terminaison REST de notre API. Ces tests sont à la fois automatisés et manuels via un client d'API.
+
+Lorsque nous lançons nos services, nous nous assurons que
+
+- La **base de donnée relationnelle** est accessible est initialisée avec le schéma de données.
+- Le **_Binding_ au Message broker** est opérationnelle, pour produire les messages comme pour s'abonner au topic du message broker.
+
+Nous contrôlons manuellement les différents endpoints Rest de notre API grâce à un **client d'API** comme **Postman** ou **Bruno**. De cette manière nous pouvons contrôler que l'APi renvoie correctmeent les données de test.
+
+Cette étape d'assurance quaité peut également être automatisé en prenant en compte les scénarios d'utilisation de nos endpoints que les clients d'API réalisent.
+
+### Tests de charge avec JMeter
+
+![Test de charges d'une réservation de lit avec JMeter](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/load-test-reservation-screen.png)
+
+### Pipeline d'intégration continue Github Actions
+
+![Pipeline d'intégration continue avec Github Actions](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/github-actions-screen.png)
 
 ### Analyse statique avec SonarQube (SAST)
 
-## Démonstrations
-
-### Parcours utilisateur
-
-### Tests unitaires
-
-### Tests de charge
-
-### Commentaires de Pull Requests (Unit tests, SonarCloud)
+![Suivi des métriques de qualité du code avec SonarQube et Cloud](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/sonarcloud-screen.png)
 
 ## Résultats et enseignements de la PoC
 
 ### Conclusions
 
+A travers cette preuve de concept, nous avons pu prouvé au consortium MedHead qu'une meilleure gestion de la réservation d'urgence est possible.
+
+Cette PoC s'inscrit dans une vision d'intégrer facilement un nouveau système communiquant avec le reste de l'architecture d'entreprise.
+
+A travers cette implémentation de bout en bout, Nous pourrons proposer un nouveau service réduisant considérablement le temps de réservation, tout en augmentant la qualité de service proposée aux usagers.
+
 ### Enseignements
 
+Cette preuve de concept a également servi à rendre compte de l'importance des choix de conception dans le développement de systèmes robustes et fiables.
+
+En posant très tôt dans le projet des exigences et des bonnes pratiques, nous nous évitons une maintenance chronophage et couteuse pour faire évoluer nos systèmes et répondre rapidement aux nouveaux besoins exprimés.
+
+La qualité entraîne la rigueur et l'organisation, et ce projet a été l'occasion de mettre en pratique les savoirs faire enseignés pour délivrer une solution répondant à des exigences d'entreprise.
+
 ### Recommandations pour la mise en production
+
+- Sécuriser les services et les communications entre les différents composants :
+
+  - Certificats TLS pour chaque composants afin de communiquer via HTTPS
+  - Chiffrement des évènements envoyés et reçu par Kafka pour sécuriser des données critiques
+  - Authentification des utilisateurs sur service de résevration par un fournisseur d'identité centralisé
+
+- Compléter notre démarche DevOps en automatisant les phase de déploiement
+
+  - Gérer les variables d'environnement pour déployer le système dans différents environnement (test, production)
+  - Récupérer les artifacts (builds) de nos services pour les déployer sur un Cloud Provider
+
+- Améliorer la disponibilité et la résilience de nos systèmes
+  - Intégrer un orchestrateur de conteneur pour mettre à l'échelle de manière horizontale les services les plus sollicités
+  - Implémenter une stratégie de cache pour accélerer considérabement les temps de réponses pour des résultats déjà réquêtés
+  - Monitorer les composants à l'aide d'outil de supervision déjà intégrés dans l'architecture d'entreprise de MedHead
