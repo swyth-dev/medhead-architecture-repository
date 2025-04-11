@@ -31,19 +31,18 @@ title: Rapport des résultats de la PoC
     - [Analyse statique avec SonarQube (SAST)](#analyse-statique-avec-sonarqube-sast)
   - [Bonnes pratiques](#bonnes-pratiques)
     - [Approche Domain-Driven Design](#approche-domain-driven-design)
-    - [**Principes SOLID** :](#principes-solid-)
-    - [**Documentation versionnée** :](#documentation-versionnée-)
+    - [Principes SOLID](#principes-solid)
+    - [Documentation versionnée](#documentation-versionnée)
     - [Intégration continue](#intégration-continue-1)
     - [Multiple environnement: Local, Feature, Staging, Production](#multiple-environnement-local-feature-staging-production)
   - [Sécurité](#sécurité)
     - [Observations](#observations)
-    - [**Analyse des impacts DICT** :](#analyse-des-impacts-dict-)
-    - [**Défense en profondeur** :](#défense-en-profondeur-)
+    - [Analyse des impacts DICT](#analyse-des-impacts-dict)
+    - [Défense en profondeur](#défense-en-profondeur)
   - [Résultats et enseignements de la PoC](#résultats-et-enseignements-de-la-poc)
     - [Conclusions](#conclusions)
     - [Enseignements](#enseignements)
     - [Recommandations pour la mise en production](#recommandations-pour-la-mise-en-production)
-
 
 ## Objet de document
 
@@ -139,13 +138,24 @@ Dans le cadre de notre démarche d’intégration continue et de livraison conti
 
 - **Simplification de la gestion des branches** : En évitant la multiplication des branches longues, les incréments sont rapidement ajoutés à la branche principale, favorisant un historique et un suivi plus claire, et une seule voie pour la mise en production.
 
+  **La gestion des branches principales reste proche d'une gestion Gitflow :**
+
+- `main` versionne l'état du système tel qu'il est en environnement de production. Cette branche est très protégée afin d'éviter toute changement provoquant un incident / bug en production.
+- `develop` est une branche dédiée à l'environnement de staging/préproduction. Basée sur `main`, Cette branche a une visée de qualification en fin de cycle de test, avant de pousser les changements sur la branche principale. Cette branche est protégée, et nécssite que la CI réussie pour que les changement soient appliqués, comme pour `main`. Cette branche ne peut avoir trop de commit d'avance sur la `main` sous peine de rendre cet environnement non ISO avec la production.
+- les branche `feature/refacto/fix/chore/autre` sont également des branches à durée de vie très courte en fonction des travaux en cours. Ces branches peuvent être déployée dans un environnement éphémère de test pour valider les changements réalisés.
+
 ## Architecture Design Patterns
 
 - **Architecture Microservice** :
+
   - Service déployable indépendamment des autres et de manière décentralisée.
+
   - Mise à l'échelle facilitée pour les services qui ont la plus forte utilisation.
+
   - Équilibrage de charge entre les différentes instances d'un même service
+
   - D'un point de vue métier, la logique des sous-domaines business sont encapsulées dans chaque micro-services, avec des frontières claires et définies.
+
   - Dans notre contexte actuelle de projet agile, la maintenance de chaque sous-domaine est facilitée pour les équipes de développement, en réduisant les risques d'incidents lors d'évolutions futures.
 
 ![micro-service-architecture](https://learn.microsoft.com/en-us/azure/architecture/includes/images/microservices-logical.png)
@@ -157,7 +167,8 @@ Dans le cadre de notre démarche d’intégration continue et de livraison conti
 ![Gateway Aggregation and Routing Pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/_images/gateway-multiple-services.png)
 
 - **Event-Driven & Publisher/subscribers patterns** :
-  Composant logiciel permettant de transmettre des informations et événements, où d'autres systèmes peuvent être appairé sans qu'il ne soient implémenté dans les mêmes langages ou sur la même plateforme d'hébergement. que notre PoC.
+
+Composant logiciel permettant de transmettre des informations et événements, où d'autres systèmes peuvent être appairé sans qu'il ne soient implémenté dans les mêmes langages ou sur la même plateforme d'hébergement. que notre PoC.
 
 Grâce à Spring Cloud Stream & StreamBridge, nos microservice se binde (s'appairent) avec un message broker via le fichier de configuration.
 
@@ -208,6 +219,7 @@ Nous avons ajouté un fichier de confugration JMeter afin d'évaluer notre syst�
 Les **enseignements tirés** sont :
 
 - La **nécessité d'un orchestrateur** afin de mettre à l'échelle les services les plus sollicités
+
 - Implémenter **une stratégie de cache** afin de soulager l'usage des bases de données lorsque celles-ci renvoient souvent les mêmes données.
 
 ![Test de charges d'une réservation de lit avec JMeter](https://raw.githubusercontent.com/swyth-dev/medhead-architecture-repository/refs/heads/main/docs/_assets/load-test-reservation-screen.png)
@@ -217,7 +229,9 @@ Les **enseignements tirés** sont :
 Les tests systèmes sont les plus lents à s'éxécuter de la pyramide des tests, mais aussi les plus couteux à maintenir. Ils incluent :
 
 - **Tests fonctionnels** : Parcours utilisateurs, edge cases
+
 - **Tests non fonctionnel** : Scan dynamique de vulnérabilité,
+
 - **Test d'UI** : Non régression des éléments de l'interface graphique
 
 Pour notre preuve de concept, ces tests n'ont pas été automatisés. n'anmoins dans la reprise des développement pour atteindre l'architecture cible, il devront être inétégrer à la stratégie de test du projet.
@@ -252,16 +266,19 @@ L'[**analyse statique avec SonarQube/Cloud**](https://sonarcloud.io/organization
 
 ### Approche Domain-Driven Design
 
-  - En choissisant de découper les sous-domaine métiers en micro services, les équipes de développement peuvent concevoir les modèles en collaboration avec les équipes métiers (Business stakeholders, Product people, QA, etc)
-  - Ainsi, les équipes de développement adopte des patterns qui assurent une haute cohérence entre les services et un faible couplage entre logique métier et implémentation technique.
+En choissisant de découper les sous-domaine métiers en micro services, les équipes de développement peuvent concevoir les modèles en collaboration avec les équipes métiers (Business stakeholders, Product people, QA, etc)
 
-### **[Principes SOLID](https://www.baeldung.com/solid-principles)** : 
+Ainsi, les équipes de développement adopte des patterns qui assurent une haute cohérence entre les services et un faible couplage entre logique métier et implémentation technique.
+
+### [Principes SOLID](https://www.baeldung.com/solid-principles)
+
 Principes de conception (complémentaire à l'approche DDD) visant à créer des logiciels maintenables, compréhensibles, évolutifs et flexibles.
 
-### **Documentation versionnée** :
+### Documentation versionnée
 
-  - Document d'architecture versionnés en Markdown : Les changements faits sur les documents sont traçables pour toutes les parties prenantes.
-  - Les classes et méthodes des services Spring sont documentés grâce à la **[JavaDoc](https://www.jetbrains.com/help/idea/javadocs.html)**, de sorte à réduire la charge mentale des développeurs.
+- Document d'architecture versionnés en Markdown : Les changements faits sur les documents sont traçables pour toutes les parties prenantes.
+
+- Les classes et méthodes des services Spring sont documentés grâce à la **[JavaDoc](https://www.jetbrains.com/help/idea/javadocs.html)**, de sorte à réduire la charge mentale des développeurs.
 
 ### Intégration continue
 
@@ -271,10 +288,13 @@ L'intégration continue fournit un feedback rapide aux équipes de développemen
 
 Le projet se veut déployable dans de multiples environnements afin de valider la déployabilité du système avant sa mise en production.
 
-  - **Local** pour les développeurs
-  - **Environnement éphémère** à leur branche de feature/fix afin de valider grâce à des tests dynamiques les changements proposés
-  - **Environnement de Staging / préproduction** ui reproduit l'environnement de production afin d'y intégré les derniers changements et valider le fonctionnement global du système
-  - **Environnement de production**
+- **Local** pour les développeurs
+
+- **Environnement éphémère** à leur branche de feature/fix afin de valider grâce à des tests dynamiques les changements proposés
+
+- **Environnement de Staging / préproduction** ui reproduit l'environnement de production afin d'y intégré les derniers changements et valider le fonctionnement global du système
+
+- **Environnement de production**
 
 ## Sécurité
 
@@ -288,7 +308,7 @@ Le projet se veut déployable dans de multiples environnements afin de valider l
 
 - **Les données personnelles** telles que le nom, prénom, adresse mail, numéro de téléphone sont traités et conservés dans les systèmes liés à la PoC, mais seulement dans des environnement éphémère comme l'environnement local. Les risques d'impact sur la confidentialité ou l'intégrité des données sont alors faibles durant le traitement et le stockage, conformément **RGPD**.
 
-### **Analyse des impacts DICT** :
+### Analyse des impacts DICT
 
 - **Disponibilité** : Grâce aux pattenr architectural microservices, les services traitant les données peuvent être mis à l'échelle. Complété par un équilibrage de charge, nos services ont une forte tolérance aux pannes, et assurent une haute disponibilité des données
 
@@ -298,18 +318,25 @@ Le projet se veut déployable dans de multiples environnements afin de valider l
 
 - **Traçabilité** : Grâce à l'enregistrement des dates de réservations, que ce soit dans notre base de donnée mais aussi via des évènements générés, nous assurons une bonne traçabilité de la donnée au long de son cycle de vie (création modification, suppression)
 
-### **Défense en profondeur** :
+### Défense en profondeur
 
 Concept venu de la sureté nucléaire, la défense en profondeur s'applique aussi aux systèmes d'informations et permet de réduire les risques d'impact sur les données. Notamment grâce à des mesures de sécurité **en couche**, rendant difficile la compromission totale ou partielle d'un système.
 
 - **Certificat TLS** pour assurer un chiffrement des communications (HTTPS, évènements créés et lus) entre les services, mais aussi l'extérieur
+
 - **Sécurité applicative** grâce notamment à Spring Boot Security : Cadre d'authentification et de contrôle d'accès puissant et hautement personnalisable pour les applications Spring Boot.
+
 - **Sécurité réseau avec Proxy & Reverse Proxy** : Centraliser les réponses, Filtrer les requêtes entrantes.
+
 - **Système d'authentification centralisé**
+
 - **Autre mesure de défense** :
-  - **Web Application Firewall**, couplé à la sécurité réseau
-  - **Monitoring et Alerting** : Supervision et alertes en temps réel en cas d'incident.
-  - **Security Operational Center** : Dédié à la surveillance des systèmes et leurs réseaux.
+
+- **Web Application Firewall**, couplé à la sécurité réseau
+
+- **Monitoring et Alerting** : Supervision et alertes en temps réel en cas d'incident.
+
+- **Security Operational Center** : Dédié à la surveillance des systèmes et leurs réseaux.
 
 ## Résultats et enseignements de la PoC
 
@@ -335,23 +362,24 @@ Afin d'atteindre l'architecture cible visée suite à la démonstration de cette
 
 - Sécuriser les services et les communications entre les différents composants :
 
-- Certificats TLS pour chaque composants afin de communiquer via HTTPS
+  - Certificats TLS pour chaque composants afin de communiquer via HTTPS
 
-- Chiffrement des évènements envoyés et reçu par Kafka pour sécuriser des données critiques
+  - Chiffrement des évènements envoyés et reçu par Kafka pour sécuriser des données critiques
 
-- Authentification des utilisateurs sur service de résevration par un fournisseur d'identité centralisé
+  - Authentification des utilisateurs sur service de résevration par un fournisseur d'identité centralisé
 
 - Compléter notre démarche DevOps en automatisant les phase de déploiement
 
-- Gérer les variables d'environnement pour déployer le système dans différents environnement (test, production)
+  - Gérer les variables d'environnement pour déployer le système dans différents environnement (test, production)
 
-- Récupérer les artifacts (builds) de nos services pour les déployer sur un Cloud Provider
+  - Récupérer les artifacts (builds) de nos services pour les déployer sur un Cloud Provider
 
 - Améliorer la disponibilité et la résilience de nos systèmes
 
-- Intégrer un orchestrateur de conteneur pour mettre à l'échelle de manière horizontale les services les plus sollicités
+  - Intégrer un orchestrateur de conteneur pour mettre à l'échelle de manière horizontale les services les plus sollicités
 
-- Implémenter une stratégie de cache pour accélerer considérabement les temps de réponses pour des résultats déjà réquêtés
+  - Implémenter une stratégie de cache pour accélerer considérabement les temps de réponses pour des résultats déjà réquêtés
 
 - Monitorer les composants à l'aide d'outil de supervision déjà intégrés dans l'architecture d'entreprise de MedHead
+
   - Installation d'agent sur les différents services afin d'envoyer les logs/événements vers un service qui les centralise (Stack ELK, Prometheus, Grafana, Loki, Mimir, Tempo par exemple)
