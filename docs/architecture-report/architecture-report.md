@@ -314,7 +314,7 @@ Le projet se veut déployable dans de multiples environnements afin de valider l
 
 - **Intégrité** : En appliquant les principes SOLID à nos développements, ainsi qu'en contraignant l'accès via un service d'Authentification et d'Autorisation, les données sont modifiables seulement par les utilisateurs autorisés, garantissant un faible risque d'impact sur l'intégrité des données.
 
-- **Confidentialité** :
+- **Confidentialité** : Dans l'architecture cible, la confidentialité des données est prise en compte notamment en authorisant seulement les utilisateurs habilités à accéder aux données. De plus, les données sont chiffrées au repos de sorte à ce qu'elle ne soient pas exploitable, conformément au RGPD.
 
 - **Traçabilité** : Grâce à l'enregistrement des dates de réservations, que ce soit dans notre base de donnée mais aussi via des évènements générés, nous assurons une bonne traçabilité de la donnée au long de son cycle de vie (création modification, suppression)
 
