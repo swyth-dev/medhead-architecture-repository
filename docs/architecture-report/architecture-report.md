@@ -222,9 +222,7 @@ Les tests systèmes sont les plus lents à s'éxécuter de la pyramide des tests
 
 Pour notre preuve de concept, ces tests n'ont pas été automatisés. n'anmoins dans la reprise des développement pour atteindre l'architecture cible, il devront être inétégrer à la stratégie de test du projet.
 
-**Exemple de test End-To-End : Réservation réussie d'un lit d'hopital :**
-
-<div style="left: 0; width: 100%; height: 360px; position: relative;"><iframe src="https://jam.dev/video/1202148d-aa69-452d-94b5-d74cb2540fb7" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen allow="encrypted-media;"></iframe></div>
+[**Exemple de test End-To-End : Réservation réussie d'un lit d'hopital (Jam.dev)**](https://jam.dev/video/1202148d-aa69-452d-94b5-d74cb2540fb7)
 
 Dans une démarche d'amélioration de la qualité, nous préconisons d'intégrer rapidement des tests automatisés grâce aux framework comme Cypress, Playwright, ou encore Checkly (Monitoring-as-Code).
 
